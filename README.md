@@ -1,6 +1,6 @@
 # 🎯 Hangman Game Portfolio - AI Development Showcase
 
-**Developer:** GitHub Copilot AI Assistant  
+Took help from  GitHub Copilot AI Assistant  
 **Project:** Complete Hangman Game Implementation (Dual Platform)  
 **Technologies:** HTML5, CSS3, JavaScript ES6, Flutter, Dart  
 **Features:** Web App + Cross-Platform Mobile App
@@ -126,18 +126,6 @@ I developed **two complete, fully-functional Hangman game implementations** that
 - **Error Prevention**: Input validation and user guidance
 - **Performance**: Optimized rendering and memory usage
 - **Cross-Browser**: Compatible with all modern browsers
-
----
-
-## 📊 **Development Metrics**
-
-| Metric                   | Web Version | Flutter Version | Total     |
-| ------------------------ | ----------- | --------------- | --------- |
-| **Lines of Code**        | 850+        | 650+            | 1,500+    |
-| **Files Created**        | 4           | 130+            | 134+      |
-| **Features Implemented** | 15+         | 18+             | 30+       |
-| **Platforms Supported**  | Web         | 6 Platforms     | 7 Total   |
-| **Development Time**     | 2 hours     | 1.5 hours       | 3.5 hours |
 
 ---
 
