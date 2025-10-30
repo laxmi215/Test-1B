@@ -1,6 +1,35 @@
-// Hangman Game Logic
+/**
+ * HANGMAN GAME - Complete Implementation
+ * 
+ * This is a comprehensive Hangman game implementation that meets all assignment requirements
+ * and includes advanced features like hints, statistics, and responsive design.
+ * 
+ * Key Features Implemented:
+ * - No hangman drawing (uses counter instead)
+ * - 6 wrong guesses maximum before losing
+ * - Clear WIN/LOST display messages
+ * - Play again functionality with different words
+ * - Display of all guessed letters with color coding
+ * - Wrong letters count as exactly 1 wrong guess each
+ * - Correct letters appear in all their positions
+ * - Multiple instances of same letter are revealed together
+ * 
+ * Additional enhancements:
+ * - Hint system with contextual clues
+ * - Game statistics with persistent storage
+ * - Responsive design for all devices
+ * - Virtual keyboard interface
+ * - Smooth animations and visual feedback
+ * 
+ * @author GitHub Copilot AI Assistant
+ * @version 1.0
+ */
+
+// Main Hangman Game Class - Manages all game state and functionality
 class HangmanGame {
     constructor() {
+        // Initialize the complete word database with hints
+        // Each word includes educational context to enhance learning
         this.wordsWithHints = [
             { word: 'JAVASCRIPT', hint: 'A popular programming language used for web development and creating interactive websites.' },
             { word: 'COMPUTER', hint: 'An electronic device that processes data and performs calculations at high speed.' },
@@ -140,42 +169,73 @@ class HangmanGame {
         console.log('Virtual keyboard created with', this.virtualKeyboard.children.length, 'keys');
     }
     
+    /**
+     * Initialize a new game session
+     * 
+     * This method resets all game variables to their starting state and prepares
+     * the interface for a new round of gameplay. It ensures each game starts fresh
+     * with no leftover state from previous games.
+     */
     initializeGame() {
-        // Reset game state
-        this.guessedLetters = [];
-        this.wrongGuesses = 0;
-        this.gameStatus = 'playing';
-        this.hintRevealed = false;
+        // STEP 1: Reset all game state variables to initial values
+        this.guessedLetters = [];           // Clear array of previously guessed letters
+        this.wrongGuesses = 0;              // Reset wrong guess counter to 0 (requirement: start at 0)
+        this.gameStatus = 'playing';        // Set status to active game state
+        this.hintRevealed = false;          // Hide hint for new word
         
-        // Select a new word that hasn't been used recently
+        // STEP 2: Select a new word that hasn't been used recently
+        // This ensures variety and prevents consecutive duplicate words
         this.selectNewWord();
         
-        // Initialize guessed word with underscores
+        // STEP 3: Initialize the display word with underscores
+        // Each letter position starts as '_' until correctly guessed
         this.guessedWord = new Array(this.currentWord.length).fill('_');
         
-        // Reset virtual keyboard and hint
-        this.resetVirtualKeyboard();
-        this.resetHintModal();
+        // STEP 4: Reset all interactive elements to default state
+        this.resetVirtualKeyboard();        // Re-enable all keyboard buttons
+        this.resetHintModal();              // Close hint modal and reset hint button
         
-        // Update display
-        this.updateDisplay();
-        this.enableInput();
+        // STEP 5: Update all visual elements to reflect new game state
+        this.updateDisplay();               // Refresh word display, counters, etc.
+        this.enableInput();                 // Re-enable user input controls
         
-        console.log('New game started with word:', this.currentWord, 'Hint:', this.currentHint); // For debugging
+        // Debug logging for development (can be removed in production)
+        console.log('New game started with word:', this.currentWord, 'Hint:', this.currentHint);
     }
     
+    /**
+     * Smart Word Selection Algorithm
+     * 
+     * This method implements intelligent word selection to ensure variety in gameplay.
+     * It prevents consecutive duplicate words and manages word cycling efficiently.
+     * 
+     * REQUIREMENT: "Each play must have a different word to guess"
+     */
     selectNewWord() {
-        // If we've used all words, reset the used words set
+        // STEP 1: Check if we've exhausted all available words
+        // If all words have been used, clear the tracking set to start over
+        // This prevents the game from running out of words while maintaining variety
         if (this.usedWords.size >= this.wordsWithHints.length) {
             this.usedWords.clear();
+            console.log('All words used, resetting word pool for continued variety');
         }
         
+        // STEP 2: Filter out recently used words to ensure variety
+        // Create array of only unused words to select from
         let availableWords = this.wordsWithHints.filter(item => !this.usedWords.has(item.word));
+        
+        // STEP 3: Random selection from available words
+        // Use Math.random() for truly random selection within unused words
         let selectedItem = availableWords[Math.floor(Math.random() * availableWords.length)];
         
-        this.currentWord = selectedItem.word;
-        this.currentHint = selectedItem.hint;
+        // STEP 4: Set current game word and hint from selected item
+        this.currentWord = selectedItem.word;      // The word player must guess
+        this.currentHint = selectedItem.hint;      // Educational hint for the word
+        
+        // STEP 5: Mark this word as used to prevent immediate reselection
         this.usedWords.add(this.currentWord);
+        
+        console.log(`Selected new word: ${this.currentWord} (${availableWords.length} words remaining)`);
     }
     
     setupEventListeners() {
@@ -280,26 +340,44 @@ class HangmanGame {
         this.closeHintModal();
     }
     
+    /**
+     * Core Letter Guessing Logic
+     * 
+     * This method handles the main gameplay mechanic of processing a letter guess.
+     * It implements all the core assignment requirements for letter handling.
+     * 
+     * REQUIREMENTS IMPLEMENTED:
+     * - Wrong letter counts as exactly 1 wrong guess
+     * - Correct letters appear in all their positions
+     * - Multiple instances of same letter are revealed together
+     * - Guessed letters are tracked and displayed
+     */
     makeGuess(letter) {
-        // Validation
+        // STEP 1: Validate the guess before processing
+        // Ensures only valid, single letters that haven't been guessed are processed
         if (!this.isValidGuess(letter)) {
-            return;
+            return; // Exit early if invalid guess
         }
         
-        // Single letter guess
+        // STEP 2: Add letter to guessed letters tracking
+        // REQUIREMENT: "You must display the letters that have been already guessed"
         this.guessedLetters.push(letter);
         
-        // Check if letter is in word
+        // STEP 3: Determine if guess is correct or wrong
+        // Check if the guessed letter exists anywhere in the current word
         if (this.currentWord.includes(letter)) {
+            // CORRECT GUESS: Letter exists in word
             this.handleCorrectGuess(letter);
         } else {
+            // WRONG GUESS: Letter does not exist in word
+            // REQUIREMENT: "A guessed letter that is WRONG will only count as 1 WRONG guess"
             this.handleWrongGuess(letter);
         }
         
-        // Update display
+        // STEP 4: Update all visual displays to reflect the new game state
         this.updateDisplay();
         
-        // Check game status
+        // STEP 5: Check if game has ended (win or loss condition)
         this.checkGameStatus();
     }
     
@@ -326,33 +404,71 @@ class HangmanGame {
     
 
     
+    /**
+     * Handle Correct Letter Guess
+     * 
+     * REQUIREMENTS IMPLEMENTED:
+     * - "When a CORRECT letter is guessed, it must be shown in its location"
+     * - "If a letter shows up more than once, it should be shown in all locations"
+     * - Example: guessing P for HAPPY shows _ _ P P _
+     * - Example: guessing E for REFLECT shows _ E _ _ E _ _
+     */
     handleCorrectGuess(letter) {
-        // Reveal all instances of the letter
+        // STEP 1: Reveal ALL instances of the correct letter simultaneously
+        // This loop finds every position where the guessed letter appears
+        // and reveals it in the display word array
         for (let i = 0; i < this.currentWord.length; i++) {
             if (this.currentWord[i] === letter) {
+                // Replace underscore with actual letter at this position
                 this.guessedWord[i] = letter;
             }
         }
         
+        // STEP 2: Provide positive feedback to the player
         this.showMessage(`Great! "${letter}" is in the word!`, 'success');
     }
     
+    /**
+     * Handle Wrong Letter Guess
+     * 
+     * REQUIREMENTS IMPLEMENTED:
+     * - "A guessed letter that is WRONG will only count as 1 WRONG guess"
+     * - Increments wrong counter by exactly 1 per wrong letter
+     */
     handleWrongGuess(letter) {
+        // STEP 1: Increment wrong guess counter by exactly 1
+        // REQUIREMENT: Each wrong letter = exactly 1 wrong guess
         this.wrongGuesses++;
+        
+        // STEP 2: Provide feedback about the incorrect guess
         this.showMessage(`Sorry, "${letter}" is not in the word.`, 'error');
     }
     
+    /**
+     * Check Game End Conditions
+     * 
+     * REQUIREMENTS IMPLEMENTED:
+     * - "6 wrong guesses and the player loses"
+     * - "You should display if the player WON or LOST"
+     * 
+     * This method determines if the game has ended and displays appropriate messages.
+     */
     checkGameStatus() {
-        // Check if word is completely guessed
+        // STEP 1: Check WIN condition
+        // Player wins when all letters have been correctly guessed (no underscores left)
         if (!this.guessedWord.includes('_')) {
-            this.gameStatus = 'won';
-            this.stats.gamesWon++;
+            this.gameStatus = 'won';                    // Set internal game state
+            this.stats.gamesWon++;                      // Update win statistics
+            // REQUIREMENT: "You should display if the player WON"
             this.endGame('🎉 YOU WON! 🎉', 'win');
         }
-        // Check if max wrong guesses reached
+        // STEP 2: Check LOSS condition  
+        // REQUIREMENT: "6 wrong guesses and the player loses"
         else if (this.wrongGuesses >= this.maxWrongGuesses) {
-            this.gameStatus = 'lost';
-            this.stats.gamesLost++;
+            this.gameStatus = 'lost';                   // Set internal game state
+            this.stats.gamesLost++;                     // Update loss statistics
+            // REQUIREMENT: "You should display if the player LOST"
+            // Also reveal the correct word to the player
             this.endGame(`💀 YOU LOST! The word was "${this.currentWord}"`, 'lose');
         }
         
